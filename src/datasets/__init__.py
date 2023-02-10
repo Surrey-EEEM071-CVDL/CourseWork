@@ -1,13 +1,11 @@
 # Copyright (c) EEEM071, University of Surrey
 
-from .cub200 import CUB200
 from .vehicleid import VehicleID
 from .veri import VeRi
 
 __imgreid_factory = {
     "veri": VeRi,
     "vehicleID": VehicleID,
-    "cub200": CUB200,
 }
 
 

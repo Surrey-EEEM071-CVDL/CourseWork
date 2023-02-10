@@ -8,4 +8,4 @@ python main.py \
 --width 224 \
 --test-batch-size 100 \
 --evaluate \
---save-dir logs/eval-veri \
+--save-dir logs/eval-veri

@@ -6,7 +6,6 @@ from .dataset_loader import ImageDataset
 from .datasets import init_imgreid_dataset
 from .samplers import build_train_sampler
 from .transforms import build_transforms
-from .utils.mean_and_std import get_mean_and_std, calculate_mean_and_std
 
 
 class BaseDataManager:
@@ -116,8 +115,6 @@ class ImageDataManager(BaseDataManager):
             pin_memory=self.use_gpu,
             drop_last=True,
         )
-        mean, std = calculate_mean_and_std(self.trainloader, len(train))
-        print("mean and std:", mean, std)
 
         print("=> Initializing TEST (target) datasets")
         self.testloader_dict = {
