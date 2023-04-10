@@ -6,7 +6,14 @@ import torchvision
 from torch import nn
 from torch.nn import functional as F
 
-__all__ = ["resnet50", "resnet50_fc512"]
+__all__ = [
+    "resnet18",
+    "resnet18_fc512",
+    "resnet34",
+    "resnet34_fc512",
+    "resnet50",
+    "resnet50_fc512",
+]
 
 model_urls = {
     "resnet18": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
@@ -264,6 +271,70 @@ resnet50: block=Bottleneck, layers=[3, 4, 6, 3]
 resnet101: block=Bottleneck, layers=[3, 4, 23, 3]
 resnet152: block=Bottleneck, layers=[3, 8, 36, 3]
 """
+
+
+def resnet18(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+    model = ResNet(
+        num_classes=num_classes,
+        loss=loss,
+        block=BasicBlock,
+        layers=[2, 2, 2, 2],
+        last_stride=2,
+        fc_dims=None,
+        dropout_p=None,
+        **kwargs,
+    )
+    if pretrained:
+        init_pretrained_weights(model, model_urls["resnet18"])
+    return model
+
+
+def resnet18_fc512(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+    model = ResNet(
+        num_classes=num_classes,
+        loss=loss,
+        block=BasicBlock,
+        layers=[2, 2, 2, 2],
+        last_stride=1,
+        fc_dims=[512],
+        dropout_p=None,
+        **kwargs,
+    )
+    if pretrained:
+        init_pretrained_weights(model, model_urls["resnet18"])
+    return model
+
+
+def resnet34(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+    model = ResNet(
+        num_classes=num_classes,
+        loss=loss,
+        block=BasicBlock,
+        layers=[3, 4, 6, 3],
+        last_stride=2,
+        fc_dims=None,
+        dropout_p=None,
+        **kwargs,
+    )
+    if pretrained:
+        init_pretrained_weights(model, model_urls["resnet34"])
+    return model
+
+
+def resnet34_fc512(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+    model = ResNet(
+        num_classes=num_classes,
+        loss=loss,
+        block=BasicBlock,
+        layers=[3, 4, 6, 3],
+        last_stride=1,
+        fc_dims=[512],
+        dropout_p=None,
+        **kwargs,
+    )
+    if pretrained:
+        init_pretrained_weights(model, model_urls["resnet34"])
+    return model
 
 
 def resnet50(num_classes, loss={"xent"}, pretrained=True, **kwargs):
