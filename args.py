@@ -68,7 +68,16 @@ def argument_parser():
         action="store_true",
         help="randomly alter the intensities of RGB channels",
     )
-
+    parser.add_argument(
+        "--horizontal-flip",
+        action="store_true",
+        help="randomly flip the images horizontally"
+    )
+    parser.add_argument(
+        "--vertical-flip",
+        action="store_true",
+        help="randomly flip the images vertically",
+    )
     # ************************************************************
     # Optimization options
     # ************************************************************

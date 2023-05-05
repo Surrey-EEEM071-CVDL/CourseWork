@@ -122,13 +122,79 @@ class ColorAugmentation:
         tensor = tensor + quatity.view(3, 1, 1)
         return tensor
 
+class RandomHorizontalFlip:
+    """
+    Randomly flip the image horizontally with a given probability
+    """
+
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, tensor):
+        if random.uniform(0, 1) > self.p:
+            return tensor
+        return torch.flip(tensor, dims=[-1])
+
+
+class RandomVerticalFlip:
+    """
+    Randomly flip the image vertically with a given probability
+    """
+
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, tensor):
+        if random.uniform(0, 1) > self.p:
+            return tensor
+        return torch.flip(tensor, dims=[-2])
+    
+class RandomZoom:
+    """
+    Randomly zoom the image with a given probability and zoom range
+    """
+
+    def __init__(self, min_zoom=0.8, max_zoom=1.2, p=0.5):
+        self.min_zoom = min_zoom
+        self.max_zoom = max_zoom
+        self.p = p
+
+    def __call__(self, tensor):
+        if random.uniform(0, 1) > self.p:
+            return tensor
+
+        zoom_factor = random.uniform(self.min_zoom, self.max_zoom)
+        h, w = tensor.shape[-2:]
+        new_h, new_w = int(h * zoom_factor), int(w * zoom_factor)
+
+        # Resize the tensor to the zoomed dimensions
+        tensor = T.resize(tensor, (new_h, new_w))
+
+        # If zoomed in, crop the tensor to the original dimensions
+        if zoom_factor > 1:
+            top = (new_h - h) // 2
+            left = (new_w - w) // 2
+            tensor = T.crop(tensor, top, left, h, w)
+        # If zoomed out, pad the tensor to the original dimensions
+        else:
+            pad_top = (h - new_h) // 2
+            pad_bottom = h - new_h - pad_top
+            pad_left = (w - new_w) // 2
+            pad_right = w - new_w - pad_left
+            padding = (pad_left, pad_top, pad_right, pad_bottom)
+            tensor = T.pad(tensor, padding)
+
+        return tensor
 
 def build_transforms(
     height,
     width,
-    random_erase=False,  # use random erasing for data augmentation
-    color_jitter=False,  # randomly change the brightness, contrast and saturation
-    color_aug=False,  # randomly alter the intensities of RGB channels
+    random_erase=True,  # use random erasing for data augmentation
+    color_jitter=True,  # randomly change the brightness, contrast and saturation
+    color_aug=True,  # randomly alter the intensities of RGB channels
+    horizontal_flip=True, #randomly flip the images horizontally
+    vertical_flip=True, #randomly flip the images vertically
+    zoom=True, #randomly zoom the images with a given factor
     **kwargs
 ):
     # use imagenet mean and std as default
@@ -152,7 +218,15 @@ def build_transforms(
     if random_erase:
         transform_train += [RandomErasing()]
     transform_train = T.Compose(transform_train)
-
+    if horizontal_flip:
+        transform_train += [RandomHorizontalFlip()]
+    transform_train = T.Compose(transform_train)
+    if vertical_flip:
+        transform_train += [RandomVerticalFlip()]
+    transform_train = T.Compose(transform_train)
+    if zoom:
+        transform_train += [RandomZoom(min_zoom=0.8, max_zoom=1.2, p=0.5)]
+    transform_train = T.Compose(transform_train)
     # build test transformations
     transform_test = T.Compose(
         [
