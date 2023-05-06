@@ -8,14 +8,15 @@ __all__ = ["mobilenet_v3_small", "vgg16"]
 
 
 class TorchVisionModel(nn.Module):
-    def __init__(self, name, num_classes, loss, pretrained, **kwargs):
+    def __init__(self, name, num_classes, loss, weights, **kwargs):
         super().__init__()
 
+        self.weights = weights
         self.loss = loss
-        self.backbone = tvmodels.__dict__[name](pretrained=pretrained)
+        self.backbone = tvmodels.__dict__[name](weights=weights)
         self.feature_dim = self.backbone.classifier[0].in_features
 
-        # overwrite the classifier used for ImageNet pretrianing
+        # overwrite the classifier used for ImageNet pretraining
         # nn.Identity() will do nothing, it's just a place-holder
         self.backbone.classifier = nn.Identity()
         self.classifier = nn.Linear(self.feature_dim, num_classes)
@@ -36,23 +37,23 @@ class TorchVisionModel(nn.Module):
             raise KeyError(f"Unsupported loss: {self.loss}")
 
 
-def vgg16(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+def vgg16(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
     model = TorchVisionModel(
         "vgg16",
         num_classes=num_classes,
         loss=loss,
-        pretrained=pretrained,
+        weights=weights,
         **kwargs,
     )
     return model
 
 
-def mobilenet_v3_small(num_classes, loss={"xent"}, pretrained=True, **kwargs):
+def mobilenet_v3_small(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
     model = TorchVisionModel(
         "mobilenet_v3_small",
         num_classes=num_classes,
         loss=loss,
-        pretrained=pretrained,
+        weights = weights,
         **kwargs,
     )
     return model
