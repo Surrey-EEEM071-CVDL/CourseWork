@@ -283,6 +283,9 @@ def resnet18(num_classes, loss={"xent"}, pretrained=True, **kwargs):
         fc_dims=None,
         dropout_p=None,
         **kwargs,
+
+
+
     )
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet18"])

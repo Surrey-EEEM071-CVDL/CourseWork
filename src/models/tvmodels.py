@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchvision.models as tvmodels
 
 
-__all__ = ["mobilenet_v3_small", "vgg16"]
+__all__ = ["mobilenet_v3_small", "vgg16", "resnet18d"]
 
 
 class TorchVisionModel(nn.Module):
@@ -36,7 +36,28 @@ class TorchVisionModel(nn.Module):
         else:
             raise KeyError(f"Unsupported loss: {self.loss}")
 
+def resnet18d(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
+    model = TorchVisionModel(
+        "resnet18",
+        num_classes=num_classes,
+        loss=loss,
+        weights=weights,
+        **kwargs,)
 
+    dropout = nn.Dropout(p=0.5)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Sequential(
+        nn.Linear(num_ftrs, 512),
+        nn.ReLU(inplace=True),
+        dropout,
+        nn.Linear(512, 2)
+    )
+
+    for param in model.parameters():
+        param.requires_grad = False
+
+    print(model)
+    return model
 def vgg16(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
     model = TorchVisionModel(
         "vgg16",
@@ -48,7 +69,7 @@ def vgg16(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
     return model
 
 
-def mobilenet_v3_small(num_classes, loss={"xent"}, weights='DEFAULT', **kwargs):
+def mobilenet_v3_small(num_classes, loss={"htri"}, weights='DEFAULT', **kwargs):
     model = TorchVisionModel(
         "mobilenet_v3_small",
         num_classes=num_classes,
